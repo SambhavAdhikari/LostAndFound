@@ -749,3 +749,109 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log('🔍 Lost & Found Portal - Frontend loaded successfully!');
 console.log('📊 Current items in database:', getItems().length);
 
+/**
+ * Theme Manager Module
+ * Handles dark/light mode switching with localStorage persistence
+ * Following Single Responsibility Principle
+ */
+
+const ThemeManager = (function() {
+  // Private variables
+  const THEME_KEY = 'user-theme-preference';
+  const THEMES = {
+    DARK: 'dark',
+    LIGHT: 'light'
+  };
+  
+  /**
+   * Get current theme from localStorage or default to dark
+   * @returns {string} Current theme
+   */
+  function getCurrentTheme() {
+    return localStorage.getItem(THEME_KEY) || THEMES.DARK;
+  }
+  
+  /**
+   * Set theme in localStorage and apply to document
+   * @param {string} theme - Theme to apply (dark/light)
+   */
+  function setTheme(theme) {
+    if (!Object.values(THEMES).includes(theme)) {
+      console.error(`Invalid theme: ${theme}`);
+      return;
+    }
+    
+    localStorage.setItem(THEME_KEY, theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeIcon(theme);
+  }
+  
+  /**
+   * Toggle between dark and light themes
+   */
+  function toggleTheme() {
+    const currentTheme = getCurrentTheme();
+    const newTheme = currentTheme === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK;
+    setTheme(newTheme);
+  }
+  
+  /**
+   * Update the theme toggle button icon
+   * @param {string} theme - Current theme
+   */
+  function updateThemeIcon(theme) {
+    const icon = document.querySelector('.theme-toggle-icon');
+    if (icon) {
+      icon.textContent = theme === THEMES.DARK ? '☀️' : '🌙';
+      icon.setAttribute('aria-label', `Switch to ${theme === THEMES.DARK ? 'light' : 'dark'} mode`);
+    }
+  }
+  
+  /**
+   * Create and inject theme toggle button into DOM
+   */
+  function createToggleButton() {
+    // Check if button already exists
+    if (document.querySelector('.theme-toggle')) {
+      return;
+    }
+    
+    const button = document.createElement('button');
+    button.className = 'theme-toggle';
+    button.setAttribute('aria-label', 'Toggle theme');
+    button.innerHTML = '<span class="theme-toggle-icon">☀️</span>';
+    button.addEventListener('click', toggleTheme);
+    
+    document.body.appendChild(button);
+  }
+  
+  /**
+   * Initialize theme system
+   */
+  function init() {
+    const savedTheme = getCurrentTheme();
+    setTheme(savedTheme);
+    createToggleButton();
+  }
+  
+  // Public API
+  return {
+    init,
+    toggleTheme,
+    getCurrentTheme,
+    setTheme,
+    THEMES
+  };
+})();
+
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ThemeManager.init);
+} else {
+  ThemeManager.init();
+}
+
+// Export for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ThemeManager;
+}
