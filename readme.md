@@ -1,4 +1,4 @@
-# Lost & Found Portal - Dark/Light Mode Implementation
+# Lost & Found Portal 
 
 ## 🏗️ Architecture Overview
 
